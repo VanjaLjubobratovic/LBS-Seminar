@@ -11,8 +11,8 @@ library(rgeoboundaries)
 library(data.table)
 library(rgeos)
 
-elevationUp <- raster(paste0("N45E014.hgt.zip"))
-elevationDown <- raster(paste0("N44E014.hgt.zip"))
+elevationUp <- raster(paste0("N45E014.hgt"))
+elevationDown <- raster(paste0("N44E014.hgt"))
 elevationMerge <- mosaic(elevationUp, elevationDown, fun = mean)
 
 print(elevationMerge)
@@ -101,17 +101,17 @@ plot(density(height_diff), col='blue', main='Eksperimentalna razdioba preziduala
      xlab='Vrijednost reziduala', ylab='Vjerojatnost pojave')
 
 print(shapiro.test(height_diff))
+print(ks.test(height_diff, 'pnorm'))
 
-# ggplot(longSrtm) +
-#   scale_fill_gradientn("Elevation", 
-#                        colors=c("seagreen","darkgreen","green1","yellow","gold4", "sienna"),
-#                        values=scales::rescale(c(-5,0,50,100,200,500))) + 
-#   scale_colour_gradientn("Elevation", 
-#                         colors=c("seagreen","darkgreen","green1","yellow","gold4", "sienna"),
-#                         values=scales::rescale(c(-5,0,50,100,200,500))) + 
-#   theme_minimal() +
-#   theme(axis.text=element_blank(),
-#         axis.title=element_blank()) +
-#   geom_path(data=krk_dt, aes(lon, lat, group=group), color="black", size=1.5) +
-#   geom_voronoi(aes(lon, lat, fill = value), outline=krk_dt)
-
+ggplot(longSrtm) +
+  scale_fill_gradientn("Elevation",
+                       colors=c("seagreen","darkgreen","green1","yellow","gold4", "sienna"),
+                       values=scales::rescale(c(-5,0,50,100,200,500))) +
+  scale_colour_gradientn("Elevation",
+                        colors=c("seagreen","darkgreen","green1","yellow","gold4", "sienna"),
+                        values=scales::rescale(c(-5,0,50,100,200,500))) +
+  theme_minimal() +
+  theme(axis.text=element_blank(),
+        axis.title=element_blank()) +
+  geom_path(data=krk_dt, aes(lon, lat, group=group), color="black", size=1.5) +
+  geom_voronoi(aes(lon, lat, fill = value), outline=krk_dt)
