@@ -71,7 +71,7 @@ longSrtm$lon = as.numeric(as.character(longSrtm$lon))
 krk_voronoi <- voronoi_polygon(data=longSrtm, x="lon", y="lat", outline=krk_dt)
 
 set.seed(123)
-n_points <- 500
+n_points <- 1000
 random_indeces <- sample(1:nrow(srtmFull), size=n_points, replace=FALSE)
 random_points_df <- srtmFull[random_indeces,]
 random_points <- SpatialPointsDataFrame(coords=cbind(random_points_df$lat, random_points_df$lon),
