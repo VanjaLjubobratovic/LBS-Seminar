@@ -92,6 +92,16 @@ points_in_polygon <- gContains(krk_voronoi, random_points, byid = TRUE)
 plot(krk_voronoi)
 plot(random_points, col="red", pch=20, add=TRUE)
 
+#Statistička analiza
+summary(height_diff)
+sd(height_diff)
+boxplot(height_diff, col = 'blue', main='Box-plot diagram reziduala', xlab='Vrijednost opažanja', ylab='Kvartili')
+
+plot(density(height_diff), col='blue', main='Eksperimentalna razdioba preziduala', 
+     xlab='Vrijednost reziduala', ylab='Vjerojatnost pojave')
+
+print(shapiro.test(height_diff))
+
 # ggplot(longSrtm) +
 #   scale_fill_gradientn("Elevation", 
 #                        colors=c("seagreen","darkgreen","green1","yellow","gold4", "sienna"),
