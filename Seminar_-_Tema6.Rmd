@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Uvod
 
-Zadatak seminara sastojao se od razvoja programske podrške u programskom okruženju za statističko računarstvo R koja će prikazati reljef u obliku digitalne karte. Za uspješno izvršenje zadatka bilo je potrebno napraviti pet ključnih koraka. Prvi korak bio je preuzimanje prostornih podataka rezolucije 500m za područje otoka Krka s internetkse baze CGIAR CSI DEM. Drugi korak bio je definirati Voronoievu teselaciju prostora oko prostornih točaka iz prethodno navedene internetske baze. Treći korak sastojao se od pridruživanja svakoj Voronoievoj ćeliji vrijednost nadmorske visine koja ima njeno središte. Zadnji korak bio je prikazati kreiranu sliku reljefa u obliku digitalne karte te dobivenu kartu usporediti s referentim modelom od 30m koristeći deskriptivnu statističku analizu.  
+Zadatak seminara sastojao se od razvoja programske podrške u programskom okruženju za statističko računarstvo R koja će prikazati reljef u obliku digitalne karte. Za uspješno izvršenje zadatka bilo je potrebno napraviti pet ključnih koraka. Prvi korak bio je preuzimanje prostornih podataka rezolucije 500m za područje otoka Krka s internetkse baze CGIAR CSI DEM. Drugi korak bio je definirati Voronoievu teselaciju prostora oko prostornih točaka iz prethodno navedene internetske baze. Treći korak sastojao se od pridruživanja svakoj Voronoievoj ćeliji vrijednost nadmorske visine koja ima njeno središte. Zadnja dva koraka bila su prikazati kreiranu sliku reljefa u obliku digitalne karte te dobivenu kartu usporediti s referentim modelom od 30m koristeći deskriptivnu statističku analizu.  
 
 # Podjela zadatka u nekoliko koraka
 
@@ -41,7 +41,7 @@ library(data.table)
 library(rgeos)
 ```
 - library(raster) -> služi za analizu i modeliranje geografskih podataka, no u našem slučaju paket je bio bitan zbog korištenja funkcije <em>raster</em>. Navedena funkcija detaljnije je objašnjena sljedećem koraku.
-- library(rgdal) -> služi za vezanje geoprostornih podataka
+- library(rgdal) -> služi za vezanje geoprostornih podataka.
 - library(ggvoronoi) -> potreban zbog izrade i rukovanje Voronoijevim dijagramima koristeći podpaket <em>deldir</em> s vizualizacijom u <em>ggplot2</em>. Paket <em>deldir</em> ovdje je od velikog značaja jer izračunava Voronoijevu teselaciju (s obzirom na cijelu ravninu) skupa ravninskih točaka.
 - library(tidyverse) -> kolekcija r paketa dizajniranih za svakodnevnu upotrebu u radu s podacima(data science). 
 - library(sp) -> skup klasa i metoda za rad s prostornim podacima. Isto tako sadrži određene funkcije za crtanje podataka u obliku karte i sl.
@@ -49,7 +49,7 @@ library(rgeos)
 - library(remotes) -> služi za instalaciju paketa s udaljenih lokacija kao npr. GitHub ili GitLab.
 - library(rgeoboundaries) -> R paket pomoću kojega se mogu dobaviti razne vrlo detaljne granice administrativnih područja pojedinih država.
 - library(data.table) -> ekstenzija data.frame, služi za agregaciju velike količine podataka i nudi brze i jednostavno izvedive operacije nad njima.
-- library(rgeos) -> sučelje za rad s geometrijskim podacima, korištena zbog funkcije over()
+- library(rgeos) -> sučelje za rad s geometrijskim podacima, korištena zbog funkcije over().
 
 # 2) Spajanje prostornih podataka
 
@@ -69,7 +69,7 @@ pt <- cbind(14.61, 45.1)
 points(pt) 
 size <- 0.21
 ```
-Prikazani kod je spremio centralnu točku otoka Krka u varijablu *pt*. Zatim se je navedena varijabla proširila za određeni *size* u svim smjerovima i time prikazala kao otok Krk uz pomoć funkcije *plot*. Ovaj način prikazivanja otoka nije bio dobar jer iako je otok ispravno prikazan i dalje su se uzimali svi podaci, stoga kao rješenje ovog problema koristili smo funkciju *crop*. Uz pomoć naveden funkcije uzeli smo (ili odrezali) samo podatke od otoka Krka koje iznose u geografskoj širini od 44.95&deg; do 52.2&deg; i u geografskoj dužini od 14.43&deg; do 14.82&deg;.
+Prikazani kod je spremio centralnu točku otoka Krka u varijablu *pt*. Zatim se je navedena varijabla proširila za određeni *size* u svim smjerovima i time prikazala kao otok Krk uz pomoć funkcije *plot*. Ovaj način prikazivanja otoka nije bio dobar jer iako je otok ispravno prikazan i dalje su se uzimali svi podaci, stoga kao rješenje ovog problema koristili smo funkciju *crop*. Uz pomoć naveden funkcije uzeli smo (ili odrezali) samo podatke od otoka Krka koje iznose u geografskoj širini od 44.936&deg; do 45.257&deg; i u geografskoj dužini od 14.43&deg; do 14.82&deg;.
 ```{r}
 map <- crop(elevationMerge, extent(14.43, 14.82, 44.936, 45.257))
 ```
@@ -117,9 +117,9 @@ Sada postoji varijabla krk_dt u obliku podatkovne tablice koja će se koristiti 
 Pri završteku opisanog postupka za provjeru je rezultat i nacrtan pomoću ggplot knjižnice.
 
 
-# 5) Pretvorba podataka iz 30m rezolucije u 500m rezoluciju
+# 5) Pretvorba podataka iz 30m rezolucije u 360m rezoluciju
 
-Jedan od glavnih zadataka ovoga seminara bio je kreirati digtalnu kartu Krka koristeću se SRTM podacima rezolucije 500m. Nažalost, ti podaci nisu bili dostupni pa su preuzeti SRTM podaci rezolucije 30m. Kako bi se ispunio originalni zahtjev seminara, i zbog činjenice da je bilo računalno prezahtjevno izračunati Voronoievu teselaciju prostora s tolikom količinom podataka, na dostupnim računalima, dobivene podatke je odlučeno pretvoriti u rezoluciju od 500m. Sužavanje podataka je odrađeno tako da je iz svakog 17x17(520m) područja uzeta samo središnja točka. Kao alternativa pokušan je uzet prosjek svih 17x17 točaka, no to je rezultiralo lošijom finalnom kartom pa je odbačena. Prvi korak u smanjenju rezolucije podataka bio je pretvaranje raster podataka u podatkovni okvir te dodjela imena stupcima. Također napravljena je kopija podatkovnog okvira za kasniju analizu, budući da trenutni kasnije transformiramo.
+Jedan od glavnih zadataka ovoga seminara bio je kreirati digtalnu kartu Krka koristeću se SRTM podacima rezolucije 360m. Nažalost, ti podaci nisu bili dostupni pa su preuzeti SRTM podaci rezolucije 30m. Kako bi se približili originalnom zahtjevu seminara, i zbog činjenice da je bilo računalno prezahtjevno izračunati Voronoievu teselaciju prostora s tolikom količinom podataka, na dostupnim računalima, dobivene podatke je odlučeno pretvoriti u rezoluciju od 360m. Sužavanje podataka je odrađeno tako da je iz svakog 12x12(360m) područja uzeta samo središnja točka. Kao alternativa pokušan je uzet prosjek svih 12x12 točaka, no to je rezultiralo lošijom finalnom kartom pa je odbačena. Prvi korak u smanjenju rezolucije podataka bio je pretvaranje raster podataka u podatkovni okvir te dodjela imena stupcima. Također napravljena je kopija podatkovnog okvira za kasniju analizu, budući da trenutni kasnije transformiramo.
 ```{r}
 srtmPoints <- rasterToPoints(map)
 srtmFrame <- data.frame(srtmPoints)
@@ -127,7 +127,7 @@ srtmFrame <- data.frame(srtmPoints)
 colnames(srtmFrame) = c("lat", "lon", "alt")
 srtmFull <- srtmFrame
 ```
-Nakon toga, bilo je potrebno zapisati visinu i širinu središnih točaka jer bi se koordinate izgubile prilikom izračuna. Koordinate su pročitane iz podakovnog okvira, maknuti su duplikati te je uzeta svaka 17-ta vrijednost, počevši od devete.
+Nakon toga, bilo je potrebno zapisati visinu i širinu središnjih točaka jer bi se koordinate izgubile prilikom izračuna. Koordinate su pročitane iz podakovnog okvira, maknuti su duplikati te je uzeta svaka 12-ta vrijednost, počevši od šeste.
 ```{r}
 lonvals <- srtmFrame$lon
 latvals <- srtmFrame$lat
@@ -150,7 +150,7 @@ Nakon pretvorbe kreiran je novi podatkovni okvir koji se sastoji samo od središ
 ```{r}
 newSrtm <- srtmFrame
 
-#uzima se središna točka 17x17 područja
+#uzima se središna točka 12x12 područja
 newSrtm = newSrtm[seq(6, nrow(newSrtm), 12), ]
 newSrtm = newSrtm[, seq(6, ncol(newSrtm), 12)]
 
@@ -167,7 +167,7 @@ colnames(longSrtm) = c("lat", "lon", "value")
 #vrijednost geografske visine se pretvara u numeric za korištenje u Voronoi-u
 longSrtm$lon = as.numeric(as.character(longSrtm$lon))
 ```
-Ovim postupkom podaci su pretvoreni iz 30m rezolucije u 520m rezoluciju.
+Ovim postupkom podaci su pretvoreni iz 30m rezolucije u 360m rezoluciju.
 
 
 # 6) Definirati Voronoievu teselaciju prostora i generacija karte
@@ -189,7 +189,7 @@ ggplot(longSrtm) +
 
 # Provjera modela i opisna statistička analiza
 
-Za procjenu dobivenog modela bilo ga je potrebno usporediti s referentnim modelom rezolucije 30m. Za usporedbu prvo su izračunati reziduali(razlika između predviđene vrijednosti i stvarne) za nasumično izabranih 1000 točaka referentnog modela. Točke su izabrane funkcijom sample() koristeći seed 123 kako bi eksperiment mogao biti ponovljen s istim rezultatima. S funkcjom over() nasumično odabranim točkama je priduženo sidrište Voronoieve ćelije kojoj pripadaju. Zbog činjenice da je Vornoieva teselacija ograničena granicama Krka točke unutar mora nisu mogle biti pridružene sidrištima te ih je bilo potrebno ukloniti. Nakon ovog koraka ostaje oko 400 točaka za izračun Za sam izračun reziduala oduzete su vrijednosti nasumično odabranih točaka od vrijednosti njima pridruženih sidrišta.    
+Za procjenu dobivenog modela bilo ga je potrebno usporediti s referentnim modelom rezolucije 30m. Za usporedbu prvo su izračunati reziduali(razlika između predviđene vrijednosti i stvarne) za nasumično izabranih 1000 točaka referentnog modela. Točke su izabrane funkcijom sample() koristeći seed 123 kako bi eksperiment mogao biti ponovljen s istim rezultatima. S funkcjom over() nasumično odabranim točkama je priduženo sidrište Voronoieve ćelije kojoj pripadaju. Zbog činjenice da je Vornoieva teselacija ograničena granicama Krka, točkama izvan tih granica nije bilo mugće pridružiti sidrište pa ih je bilo potrebno ukloniti. Nakon ovog koraka ostaje oko 400 točaka za statističku analizu. Za sam izračun reziduala oduzete su vrijednosti nasumično odabranih točaka od vrijednosti njima pridruženih sidrišta.    
 
 ```{r}
 #Kreiranje Voronoi teselacije Krka
@@ -220,14 +220,14 @@ plot(krk_voronoi)
 plot(random_points, col="red", pch=20, add=TRUE)
 ```
 
-Za početak statističke analize iračunati su kvartili, medijan, prosjek i standardna devijacija. Rezultati su prikazani ispod.
+Za početak statističke analize izračunati su kvartili, medijan, prosjek i standardna devijacija. Rezultati su prikazani ispod.
 
 ```{r}
 #Statistička analiza
 summary(height_diff)
 sd(height_diff)
 ```
-Nacrtan je boxplot dijagram, te je iskorišten Shapiro-Wilk test i Kolmogorov-Smirnov test kako bi se provjerila sličnost raziobe reziduala s Gaussovom razdiobom. U odnosu na Shapiro-Wilk test Kolmogorov-Smirnov test je mnogo precizniji.
+Također je nacrtan boxplot dijagram, te je iskorišten Shapiro-Wilk test i Kolmogorov-Smirnov test kako bi se provjerila sličnost raziobe reziduala s Gaussovom razdiobom. U odnosu na Shapiro-Wilk test Kolmogorov-Smirnov test je mnogo precizniji.
 ```{r}
 #Boxplot dijagram
 boxplot(height_diff, col = 'blue', main='Box-plot diagram reziduala', xlab='Vrijednost opažanja', ylab='Kvartili')
@@ -239,10 +239,10 @@ plot(density(height_diff), col='blue', main='Eksperimentalna razdioba preziduala
 print(shapiro.test(height_diff))
 print(ks.test(height_diff, 'pnorm'))
 ```
-U oba testa dobivena je p vrijednost <0.05 što znači da odbacujemo nultu hipotezu tj. da podaci ne slijede normalnu razdiobu.  
+U oba testa dobivena je p vrijednost <0.05 što znači da odbacujemo nultu hipotezu tj. zaključujemo da podaci ne slijede normalnu razdiobu.  
 
 # Finalni komentari i zaključak
-U navedenom radu preuzeti su SRTM podaci rezolucije 30m te su zbog originalnog zadatka seminara ti podaci pretvoreni u rezoluciju od 500m. Također su preuzete granice otoka Krka kako bi se ograničila Voronoieva teselacija prostora. Korištenjem tih podataka kreirana je več spomenuta Voronoieva teselacija prostora unutar koje je svakoj ćeliji pridružena vrijednost nadmorske visine koju ima njeno središte. Tako kreirana slika reljefa je prikazana u obliku digitalne karte. Za usporedbu s referentnim modelom rezolucije 30m nasumično je izabrano 1000 točaka iz referentne karte kojima su onda pridružene vrijednosti odgovarajućih ćelija Voronoia. Zbog činjenice da su nasumično izabrane točke uzete iz podataka koji nisu ograničeni granicama Krka, sve točke koje se ne nalaze unutar granica je bilo potrebno ukloniti. Nakon ovog koraka ostaje oko 400 točaka čiji su reziduali izračunati oduzimanjem vrijednosti referentnog modela od vrijednosti dobivenih iz Voronoieve teselacije. Na tim podacima je provedena opisna statistička analiza koja se sastojala od izračuna kvartila, medijana, prosjeka i standardne devijacije. Reziduali su također prikazani na boxplot dijagramu te je provjereno ako podaci slijede Gaussovu razdiobu koristeći Shapiro-Wilk i Kolmogorov-Smirnov test koji su dokazali da reziduali ne slijede normalnu razdiobu. 
+U navedenom radu preuzeti su SRTM podaci rezolucije 30m te su zbog originalnog zadatka seminara ti podaci pretvoreni u rezoluciju od 360m. Također su preuzete granice otoka Krka kako bi se ograničila Voronoieva teselacija prostora. Korištenjem tih podataka kreirana je već spomenuta Voronoieva teselacija prostora unutar koje je svakoj ćeliji pridružena vrijednost nadmorske visine koju ima njeno središte. Tako kreirana slika reljefa je prikazana u obliku digitalne karte. Za usporedbu s referentnim modelom rezolucije 30m nasumično je izabrano 1000 točaka iz referentne karte kojima su onda pridružene vrijednosti odgovarajućih ćelija Voronoia. Zbog činjenice da su nasumično izabrane točke uzete iz podataka koji nisu ograničeni granicama Krka, sve točke koje se ne nalaze unutar granica je bilo potrebno ukloniti. Nakon ovog koraka ostaje oko 400 točaka čiji su reziduali izračunati oduzimanjem vrijednosti referentnog modela od vrijednosti dobivenih iz Voronoieve teselacije. Na tim podacima je provedena opisna statistička analiza koja se sastojala od izračuna kvartila, medijana, prosjeka i standardne devijacije. Reziduali su također prikazani na boxplot dijagramu te je provjereno ako podaci slijede Gaussovu razdiobu koristeći Shapiro-Wilk i Kolmogorov-Smirnov test koji su dokazali da reziduali ne slijede normalnu razdiobu. 
 Sve u svemu, rad na ovome projektu je bio zanimljiv i poučan te smo dobar dio onoga naučenog na kolegiju primijenili u ovome radu.
 
 

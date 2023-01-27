@@ -46,8 +46,8 @@ latvals <- srtmFrame$lat
 lonvals <- unique(lonvals)
 latvals <- unique(latvals)
 
-lonvals <- lonvals[seq(9, length(lonvals), 17)]
-latvals <- latvals[seq(9, length(latvals), 17)]
+lonvals <- lonvals[seq(6, length(lonvals), 12)]
+latvals <- latvals[seq(6,length(latvals), 12)]
 
 srtmFrame <- reshape(srtmFrame, idvar="lon", timevar = "lat", direction = "wide")
 #prvi red se briše jer on sadrži lat vrijednosti koje će smetati kod pretvaranja
@@ -55,9 +55,9 @@ srtmFrame[,1] <- NULL
 
 
 newSrtm <- srtmFrame
-#uzima se središna točka 17x17 područja
-newSrtm = newSrtm[seq(9, nrow(newSrtm), 17), ]
-newSrtm = newSrtm[, seq(9, ncol(newSrtm), 17)]
+#uzima se središna točka 12x12 područja
+newSrtm = newSrtm[seq(6, nrow(newSrtm), 12), ]
+newSrtm = newSrtm[, seq(9, ncol(newSrtm), 12)]
 #postavlja se geografska širina i visina
 colnames(newSrtm) <- latvals
 newSrtm$lon <- lonvals
